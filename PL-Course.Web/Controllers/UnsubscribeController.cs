@@ -1,5 +1,8 @@
-﻿using System.Threading;
+﻿using System.Messaging;
+using System.Threading;
 using System.Web.Mvc;
+using PL_Course.Infrastructure;
+using PL_Course.Messages.Commands;
 
 namespace PL_Course.Web.Controllers
 {
@@ -18,8 +21,17 @@ namespace PL_Course.Web.Controllers
                 ModelState.AddModelError("email", "Email can't be empty");
                 return View("Index");
             }
-            var workflow = new UnsubscribeWorkflow(email);
-            workflow.Run();
+            //var workflow = new UnsubscribeWorkflow(email);
+            //workflow.Run();
+
+            var command = new UnsubscribeCommand() { Email = email };
+
+            using (var queue = new MessageQueue(".\\private$\\unsubscribe"))
+            {
+                var message = new Message();
+                message.BodyStream = command.ConvertToJsonStream();
+                queue.Send(message);
+            }
 
             return View("Confirmation");
         }

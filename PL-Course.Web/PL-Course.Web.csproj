@@ -127,6 +127,10 @@
     <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\PL-Course.Infrastructure\PL-Course.Infrastructure.csproj">
+      <Project>{36a22f19-71a4-4ace-a9b6-7daa7113c8f7}</Project>
+      <Name>PL-Course.Infrastructure</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PL-Course.Messages\PL-Course.Messages.csproj">
       <Project>{0014c136-3e50-497f-a49a-570f99844c04}</Project>
       <Name>PL-Course.Messages</Name>
