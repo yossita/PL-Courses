@@ -1,0 +1,20 @@
+﻿@model dynamic
+
+@{
+    ViewBag.Title = "Unsubscribe email";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Unsubscribe</h2>
+@using (Html.BeginForm("Submit", null, FormMethod.Post, new { @class = "form-inline" }))
+{
+    <div class="col-xs-12 form-group">
+        <label for="email" class="control-label">Email to unsubscribe</label>
+        <input type="email" name="email" class="form-control" />
+        <input type="submit" class="btn btn-primary" />
+
+    </div>
+    <div class=" col-xs-12 form-group">
+        @Html.ValidationSummary(false, null, new { @class = "text-danger" })
+    </div>
+}
