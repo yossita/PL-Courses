@@ -45,7 +45,6 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UnsubscribeWorkflow.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -54,6 +53,10 @@
     <ProjectReference Include="..\PL-Course.Infrastructure\PL-Course.Infrastructure.csproj">
       <Project>{36a22f19-71a4-4ace-a9b6-7daa7113c8f7}</Project>
       <Name>PL-Course.Infrastructure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PL-Course.Integration\PL-Course.Integration.csproj">
+      <Project>{0CFF4CAF-55D0-47E9-B823-5ACEF8C90EA4}</Project>
+      <Name>PL-Course.Integration</Name>
     </ProjectReference>
     <ProjectReference Include="..\PL-Course.Messages\PL-Course.Messages.csproj">
       <Project>{0014c136-3e50-497f-a49a-570f99844c04}</Project>

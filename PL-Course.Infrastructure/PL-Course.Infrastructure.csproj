@@ -36,6 +36,7 @@
   <ItemGroup>
     <Compile Include="ObjectEx.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StreamEx.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json">

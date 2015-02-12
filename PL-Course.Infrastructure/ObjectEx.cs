@@ -7,18 +7,19 @@ namespace PL_Course.Infrastructure
     public static class ObjectEx
     {
 
-        public static Stream ConvertToJsonStream<T>(this T obj)
+        public static Stream ToJsonStream<T>(this T obj)
         {
-            return new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(obj)));
+            return new MemoryStream(Encoding.UTF8.GetBytes(obj.ToJsonString()));
         }
 
-        public static T ConvertFromJsonStream<T>(this Stream st)
+        public static string ToJsonString<T>(this T obj)
         {
-            using (var reader = new StreamReader(st))
-            {
-                var content = reader.ReadToEnd();
-                return JsonConvert.DeserializeObject<T>(content);
-            }
+            return JsonConvert.SerializeObject(obj);
+        }
+
+        public static string GetMessageType(this object obj)
+        {
+            return obj.GetType().AssemblyQualifiedName;
         }
 
     }
