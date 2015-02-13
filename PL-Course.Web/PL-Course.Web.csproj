@@ -41,7 +41,6 @@
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Messaging" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -135,6 +134,10 @@
     <ProjectReference Include="..\PL-Course.Messages\PL-Course.Messages.csproj">
       <Project>{0014c136-3e50-497f-a49a-570f99844c04}</Project>
       <Name>PL-Course.Messages</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PL-Course.Messaging\PL-Course.Messaging.csproj">
+      <Project>{481c79b9-b435-4ade-8d54-68559a030a25}</Project>
+      <Name>PL-Course.Messaging</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

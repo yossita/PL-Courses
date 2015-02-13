@@ -62,6 +62,10 @@
       <Project>{0014c136-3e50-497f-a49a-570f99844c04}</Project>
       <Name>PL-Course.Messages</Name>
     </ProjectReference>
+    <ProjectReference Include="..\PL-Course.Messaging\PL-Course.Messaging.csproj">
+      <Project>{481C79B9-B435-4ADE-8D54-68559A030A25}</Project>
+      <Name>PL-Course.Messaging</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

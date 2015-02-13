@@ -1,7 +1,7 @@
-﻿using System.Messaging;
-using System.Threading;
-using PL_Course.Infrastructure;
+﻿using System.Threading;
 using PL_Course.Messages.Events;
+using PL_Course.Messaging;
+using PL_Course.Messaging.Spec;
 
 namespace PL_Course.Integration.Workflows
 {
@@ -19,23 +19,15 @@ namespace PL_Course.Integration.Workflows
 
         public void Run()
         {
-            PersistAsUnsubscribed();
-            UnsubscribeInLegacySystem();
-            SetCrmMailingPreference();
+            SendNotificationEvent(Email);
             CancelPendingMailShots();
         }
 
-        private void NotifyUserUnsibscribed()
+        private void SendNotificationEvent(string email)
         {
-            var evt = new UserUnsubscribed { EmailAddress = Email };
-            using (var queue = new MessageQueue("FormateName:MULTICAST=234.1.1.2:8001"))
-            {
-                var message = new Message();
-                message.BodyStream = evt.ToJsonStream();
-                message.Label = evt.GetMessageType();
-                message.Recoverable = true;
-                queue.Send(message);
-            }
+            var evt = new UserUnsubscribed { EmailAddress = email };
+            var queue = MessageQueueFactory.CreateOutbound("unsubscribed-event", MessagePattern.PublishSubscribe);
+            queue.Send(new Message() { Body = evt });
         }
 
         private void CancelPendingMailShots()
@@ -43,20 +35,7 @@ namespace PL_Course.Integration.Workflows
             Thread.Sleep(StepDuration);
         }
 
-        private void SetCrmMailingPreference()
-        {
-            Thread.Sleep(StepDuration);
-        }
 
-        private void UnsubscribeInLegacySystem()
-        {
-            Thread.Sleep(StepDuration);
-        }
-
-        private void PersistAsUnsubscribed()
-        {
-            Thread.Sleep(StepDuration);
-        }
 
     }
 }

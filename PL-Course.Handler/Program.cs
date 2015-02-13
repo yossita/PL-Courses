@@ -1,9 +1,12 @@
 ﻿using System;
-using System.Messaging;
+using System.Reflection;
 using PL_Course.Infrastructure;
 using PL_Course.Integration.Workflows;
 using PL_Course.Messages.Commands;
 using PL_Course.Messages.Queries;
+using PL_Course.Messaging;
+using PL_Course.Messaging.Spec;
+using Message = System.Messaging.Message;
 
 namespace PL_Course.Handler
 {
@@ -11,47 +14,46 @@ namespace PL_Course.Handler
     {
         static void Main(string[] args)
         {
-            var queueAddress = args != null && args.Length == 1
-                ? args[0]
-                : ".\\private$\\unsubscribe";
-
-            using (var queue = new MessageQueue(queueAddress))
+            switch (args[0])
             {
-                while (true)
-                {
-                    using (var tx = new MessageQueueTransaction())
-                    {
-                        Console.WriteLine("Listening on {0}", queueAddress);
-                        //tx.Begin();
-                        var message = queue.Receive();
-                        var messageBody = message.BodyStream.ReadFromJsonStream(message.Label);
-                        if (messageBody.GetType() == typeof(UnsubscribeCommand))
-                        {
-                            Unsubscribe((UnsubscribeCommand)messageBody);
-                        }
-                        else if (messageBody.GetType() == typeof(DoesUserExistRequest))
-                        {
-                            CheckDoesUserExist((DoesUserExistRequest)messageBody, message);
-                        }
-                    }
-                }
+                case "unsubscribe":
+                    StartListening("unsubscribe", MessagePattern.FireAndForget);
+                    break;
+                case "doesuserexist":
+                    StartListening("doesuserexists", MessagePattern.RequestResponse);
+                    break;
+                default:
+                    Console.WriteLine("Usage: {0} [unsubscribe|doesuserexist]", Assembly.GetExecutingAssembly().FullName);
             }
         }
 
-        private static void CheckDoesUserExist(DoesUserExistRequest doesUserExistRequest, Message message)
+        private static void StartListening(string name, MessagePattern messagePattern)
+        {
+            var queue = MessageQueueFactory.CreateInbound(name, messagePattern);
+            Console.WriteLine("Listening on: {0}", queue.Address);
+            queue.Listen(m =>
+            {
+                if (m.BodyType == typeof(UnsubscribeCommand))
+                {
+                    Unsubscribe(m.BodyAs<UnsubscribeCommand>());
+                }
+                else if (m.BodyType == typeof(DoesUserExistRequest))
+                {
+                    CheckDoesUserExist(m.BodyAs<DoesUserExistRequest>(), queue);
+                }
+            });
+        }
+
+        private static void CheckDoesUserExist(DoesUserExistRequest doesUserExistRequest, IMessageQueue queue)
         {
             Console.WriteLine("Starting DoesUserExist for: {0}, at {1}", doesUserExistRequest.Email, DateTime.Now);
             var doesUserExistResponse = new DoesUserExistResponse()
             {
                 Exists = new DoesUserExistWorkflow().DoesUserExists(doesUserExistRequest.Email)
             };
-            using (var responseQueue = message.ResponseQueue)
-            {
-                var response = new Message();
-                response.BodyStream = doesUserExistResponse.ToJsonStream();
-                response.Label = doesUserExistResponse.GetMessageType();
-                responseQueue.Send(response);
-            }
+
+            var responseQueue = queue.GetReplyQueue();
+            responseQueue.Send(new Messaging.Spec.Message() { Body = doesUserExistResponse });
             Console.WriteLine("Returned {0} for DoesUserExist for: {1}, at {2}", doesUserExistResponse.Exists, doesUserExistRequest.Email, DateTime.Now);
         }
 
@@ -61,7 +63,6 @@ namespace PL_Course.Handler
             var workflow = new UnsubscribeWorkflow(command.Email);
             workflow.Run();
             Console.WriteLine("Unsubscribe completed for: {0}, at {1}", command.Email, DateTime.Now);
-            //tx.Commit();
         }
     }
 }

@@ -1,10 +1,9 @@
-﻿using System;
-using System.Messaging;
-using System.Threading;
+﻿using System.Threading;
 using System.Web.Mvc;
-using PL_Course.Infrastructure;
 using PL_Course.Messages.Commands;
 using PL_Course.Messages.Queries;
+using PL_Course.Messaging;
+using PL_Course.Messaging.Spec;
 
 namespace PL_Course.Web.Controllers
 {
@@ -34,47 +33,22 @@ namespace PL_Course.Web.Controllers
 
         private bool DoesUserExist(string email)
         {
-            var responseAddress = ".\\private$\\" + Guid.NewGuid().ToString().Substring(0, 6);
-            try
-            {
-                using (var responseQueue = MessageQueue.Create(responseAddress))
-                {
-                    var request = new DoesUserExistRequest { Email = email };
-                    using (var queue = new MessageQueue(".\\private$\\doesuserexist"))
-                    {
-                        var message = new Message();
-                        message.BodyStream = request.ToJsonStream();
-                        message.Label = request.GetMessageType();
-                        message.ResponseQueue = responseQueue;
-                        queue.Send(message);
-                    }
-                    var response = responseQueue.Receive();
-                    return response.BodyStream.ReadFromJsonStream<DoesUserExistResponse>().Exists;
-                }
-            }
-            finally
-            {
-                if (MessageQueue.Exists(responseAddress)) MessageQueue.Delete(responseAddress);
-            }
+            var exists = false;
+
+            var queue = MessageQueueFactory.CreateOutbound("doesuserexist", MessagePattern.RequestResponse);
+            var responseQueue = queue.GetResponseQueue();
+
+            queue.Send(new Message() { Body = new DoesUserExistRequest() { Email = email } });
+            responseQueue.Receive(m => exists = m.BodyAs<DoesUserExistResponse>().Exists);
+
+            return exists;
         }
 
         private static void StartUnsubscribe(string email)
         {
-            var command = new UnsubscribeCommand() { Email = email };
+            var queue = MessageQueueFactory.CreateOutbound("unsubscribe", MessagePattern.FireAndForget);
 
-            using (var queue = new MessageQueue(".\\private$\\unsubscribe"))
-            {
-                var message = new Message();
-                message.BodyStream = command.ToJsonStream();
-                message.Label = command.GetMessageType();
-                //using (var tx = new MessageQueueTransaction())
-                {
-                    //tx.Begin();
-                    //queue.Send(message, tx);
-                    //tx.Commit();
-                    queue.Send(message);
-                }
-            }
+            queue.Send(new Message() { Body = new UnsubscribeCommand() { Email = email } });
         }
 
         public ActionResult SubmitSync(string email)
