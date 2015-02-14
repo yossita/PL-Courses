@@ -13,7 +13,7 @@ namespace PL_Course.Messaging.Impl.MSMQ
 
         public override void Dispose()
         {
-            throw new NotImplementedException();
+            queue.Close();
         }
 
         public override void InitilizeOutbound(string name, MessagePattern messagePattern, Dictionary<string, object> properties = null)
@@ -43,6 +43,7 @@ namespace PL_Course.Messaging.Impl.MSMQ
         {
             var outbound = new msmq.Message();
             outbound.BodyStream = message.ToJsonStream();
+            outbound.Label = message.GetMessageType();
             if (!string.IsNullOrEmpty(message.ResponseAddress))
             {
                 outbound.ResponseQueue = new msmq.MessageQueue(message.ResponseAddress);
@@ -67,12 +68,12 @@ namespace PL_Course.Messaging.Impl.MSMQ
 
         public override IMessageQueue GetResponseQueue()
         {
-            throw new NotImplementedException();
+            return this;
         }
 
         public override IMessageQueue GetReplyQueue()
         {
-            throw new NotImplementedException();
+            return this;
         }
 
         protected override string GetAddress(string name)
@@ -80,13 +81,13 @@ namespace PL_Course.Messaging.Impl.MSMQ
             if (Pattern == MessagePattern.RequestResponse && Direction == Spec.Direction.Inbound)
             {
                 useTemporaryQueue = true;
-                return string.Format(".\\private$\\messagequeue.{0}", Guid.NewGuid().ToString().Substring(0, 6));
+                return string.Format(".\\private$\\temp.{0}", Guid.NewGuid().ToString().Substring(0, 6));
             }
             if (name.EndsWith("-event", StringComparison.OrdinalIgnoreCase))
             {
                 return "FormatName:MULTICAST=234.1.1.2:8001";
             }
-            return string.Format(".\\private$\\messagequeue.{0}", name);
+            return string.Format(".\\private$\\{0}", name);
         }
     }
 }

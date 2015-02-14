@@ -10,7 +10,7 @@ namespace PL_Course.Handlers.UnsubscribeCrm
     {
         static void Main(string[] args)
         {
-            var queueAddress = ".\\private$\\unsubscribe-crm";
+            var queueAddress = ".\\private$\\unsubscribed-crm";
             var multicastAddress = "234.1.1.2:8001";
             using (var queue = new MessageQueue(queueAddress))
             {

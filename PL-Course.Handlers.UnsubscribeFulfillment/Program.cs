@@ -10,7 +10,7 @@ namespace PL_Course.Handlers.UnsubscribeFulfillment
     {
         static void Main(string[] args)
         {
-            var queueAddress = ".\\private$\\unsubscribe-fulfillment";
+            var queueAddress = ".\\private$\\unsubscribed-fulfillment";
             var multicastAddress = "234.1.1.2:8001";
             using (var queue = new MessageQueue(queueAddress))
             {

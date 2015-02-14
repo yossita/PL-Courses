@@ -10,7 +10,7 @@ namespace PL_Course.Handlers.UnsubscribeLegacy
     {
         static void Main(string[] args)
         {
-            var queueAddress = ".\\private$\\unsubscribe-legacy";
+            var queueAddress = ".\\private$\\unsubscribed-legacy";
             var multicastAddress = "234.1.1.2:8001";
             using (var queue = new MessageQueue(queueAddress))
             {
