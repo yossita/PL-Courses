@@ -116,9 +116,9 @@ namespace PL_Course.Messaging.Impl.MSMQ
             if (Pattern == MessagePattern.RequestResponse && Direction == Direction.Inbound)
             {
                 useTemporaryQueue = true;
-                return string.Format(".\\private$\\messagequeue.{0}", Guid.NewGuid().ToString().Substring(0, 6));
+                return string.Format(".\\private$\\response.tmp.{0}", Guid.NewGuid().ToString().Substring(0, 6));
             }
-            if (Pattern == MessagePattern.PublishSubscribe && Direction == Direction.Outbound && name.EndsWith("-event", StringComparison.OrdinalIgnoreCase))
+            if (Pattern == MessagePattern.PublishSubscribe && Direction == Direction.Outbound)
             {
                 return string.Format("FormatName:MULTICAST={0}", multicastAddress);
             }
