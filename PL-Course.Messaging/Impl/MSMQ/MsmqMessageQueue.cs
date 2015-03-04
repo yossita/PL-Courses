@@ -61,7 +61,7 @@ namespace PL_Course.Messaging.Impl.MSMQ
             }
             else
             {
-                    queue = new msmq.MessageQueue(Address);
+                queue = new msmq.MessageQueue(Address);
             }
             return queue;
         }
@@ -79,7 +79,6 @@ namespace PL_Course.Messaging.Impl.MSMQ
         {
             var outbound = new msmq.Message();
             outbound.BodyStream = message.ToJsonStream();
-            outbound.Label = message.GetMessageType();
             if (!string.IsNullOrEmpty(message.ResponseAddress))
             {
                 outbound.ResponseQueue = new msmq.MessageQueue(message.ResponseAddress);
@@ -104,12 +103,12 @@ namespace PL_Course.Messaging.Impl.MSMQ
 
         public override IMessageQueue GetResponseQueue()
         {
-            return this;
+            throw new NotImplementedException();
         }
 
         public override IMessageQueue GetReplyQueue()
         {
-            return this;
+            throw new NotImplementedException();
         }
 
         protected override string GetAddress(string name)
@@ -117,13 +116,13 @@ namespace PL_Course.Messaging.Impl.MSMQ
             if (Pattern == MessagePattern.RequestResponse && Direction == Direction.Inbound)
             {
                 useTemporaryQueue = true;
-                return string.Format(".\\private$\\temp.{0}", Guid.NewGuid().ToString().Substring(0, 6));
+                return string.Format(".\\private$\\messagequeue.{0}", Guid.NewGuid().ToString().Substring(0, 6));
             }
             if (Pattern == MessagePattern.PublishSubscribe && Direction == Direction.Outbound && name.EndsWith("-event", StringComparison.OrdinalIgnoreCase))
             {
                 return string.Format("FormatName:MULTICAST={0}", multicastAddress);
             }
-            return string.Format(".\\private$\\{0}", name);
+            return string.Format(".\\private$\\messagequeue.{0}", name);
         }
     }
 }
