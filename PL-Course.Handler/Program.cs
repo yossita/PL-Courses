@@ -24,6 +24,7 @@ namespace PL_Course.Handler
                     break;
                 default:
                     Console.WriteLine("Usage: {0} [unsubscribe|doesuserexist]", Assembly.GetExecutingAssembly().FullName);
+                    break;
             }
         }
 

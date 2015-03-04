@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Messaging;
-using PL_Course.Infrastructure;
 using PL_Course.Integration.Workflows;
 using PL_Course.Messages.Events;
+using PL_Course.Messaging;
+using PL_Course.Messaging.Spec;
 
 namespace PL_Course.Handlers.UnsubscribeFulfillment
 {
@@ -10,25 +10,15 @@ namespace PL_Course.Handlers.UnsubscribeFulfillment
     {
         static void Main(string[] args)
         {
-            var queueAddress = ".\\private$\\unsubscribe-fulfillment";
-            var multicastAddress = "234.1.1.2:8001";
-            using (var queue = new MessageQueue(queueAddress))
+            var queue = MessageQueueFactory.CreateInbound("unsubscribe-fulfillment", MessagePattern.PublishSubscribe);
+            Console.WriteLine("Listening on {0}", queue.Address);
+            queue.Receive(message =>
             {
-                queue.MulticastAddress = multicastAddress;
-                while (true)
-                {
-                    Console.WriteLine("Listening on {0}", queueAddress);
-                    var message = queue.Receive();
-                    var messageBody = message.BodyStream.ReadFromJsonStream(message.Label);
-                    if (messageBody.GetType() == typeof(UserUnsubscribed))
-                    {
-                        var evt = ((UserUnsubscribed)messageBody);
-                        Console.WriteLine("Received UserUnsubscribed event for: {0}, at {1}", evt.EmailAddress, DateTime.Now);
-                        new UnsubscribeFulfillmentWorkflow(evt.EmailAddress).Run();
-                        Console.WriteLine("Processed UserUnsubscribed event for: {0}, at {1}", evt.EmailAddress, DateTime.Now);
-                    }
-                }
-            }
+                var evt = message.BodyAs<UserUnsubscribed>();
+                Console.WriteLine("Received UserUnsubscribed event for: {0}, at {1}", evt.EmailAddress, DateTime.Now);
+                new UnsubscribeFulfillmentWorkflow(evt.EmailAddress).Run();
+                Console.WriteLine("Processed UserUnsubscribed event for: {0}, at {1}", evt.EmailAddress, DateTime.Now);
+            });
         }
     }
 }

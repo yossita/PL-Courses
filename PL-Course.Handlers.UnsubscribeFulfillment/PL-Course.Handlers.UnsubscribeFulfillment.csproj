@@ -34,7 +34,6 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Messaging" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -60,6 +59,10 @@
     <ProjectReference Include="..\PL-Course.Messages\PL-Course.Messages.csproj">
       <Project>{0014C136-3E50-497F-A49A-570F99844C04}</Project>
       <Name>PL-Course.Messages</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PL-Course.Messaging\PL-Course.Messaging.csproj">
+      <Project>{481C79B9-B435-4ADE-8D54-68559A030A25}</Project>
+      <Name>PL-Course.Messaging</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
