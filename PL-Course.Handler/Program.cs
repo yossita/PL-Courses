@@ -20,7 +20,7 @@ namespace PL_Course.Handler
                     StartListening("unsubscribe", MessagePattern.FireAndForget);
                     break;
                 case "doesuserexist":
-                    StartListening("doesuserexists", MessagePattern.RequestResponse);
+                    StartListening("doesuserexist", MessagePattern.RequestResponse);
                     break;
                 default:
                     Console.WriteLine("Usage: {0} [unsubscribe|doesuserexist]", Assembly.GetExecutingAssembly().FullName);
