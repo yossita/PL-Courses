@@ -15,7 +15,7 @@ namespace PL_Course.Messaging.Spec
         void Listen(Action<Message> onMessageReceived);
         void Receive(Action<Message> onMessageReceived);
         IMessageQueue GetResponseQueue();
-        IMessageQueue GetReplyQueue();
+        IMessageQueue GetReplyQueue(Message message);
 
 
     }

@@ -12,10 +12,15 @@ namespace PL_Course.Infrastructure
             return new MemoryStream(Encoding.UTF8.GetBytes(obj.ToJsonString()));
         }
 
-        public static string ToJsonString<T>(this T obj)
+        public static string ToJsonString(this object obj)
         {
             return JsonConvert.SerializeObject(obj);
         }
+
+        //public static string ToJsonString<T>(this T obj)
+        //{
+        //    return JsonConvert.SerializeObject(obj);
+        //}
 
         public static string GetMessageType(this object obj)
         {

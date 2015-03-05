@@ -38,7 +38,11 @@ namespace PL_Course.Web.Controllers
             var queue = MessageQueueFactory.CreateOutbound("doesuserexist", MessagePattern.RequestResponse);
             var responseQueue = queue.GetResponseQueue();
 
-            queue.Send(new Message() { Body = new DoesUserExistRequest() { Email = email } });
+            queue.Send(new Message()
+            {
+                Body = new DoesUserExistRequest() { Email = email },
+                ResponseAddress = responseQueue.Address
+            });
             responseQueue.Receive(m => exists = m.BodyAs<DoesUserExistResponse>().Exists);
 
             return exists;
@@ -48,7 +52,11 @@ namespace PL_Course.Web.Controllers
         {
             var queue = MessageQueueFactory.CreateOutbound("unsubscribe", MessagePattern.FireAndForget);
 
-            queue.Send(new Message() { Body = new UnsubscribeCommand() { Email = email } });
+            queue.Send(new Message()
+            {
+                Body = new UnsubscribeCommand() { Email = email },
+                ResponseAddress = queue.GetResponseQueue().Address
+            });
         }
 
         public ActionResult SubmitSync(string email)

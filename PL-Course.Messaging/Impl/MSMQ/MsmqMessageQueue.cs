@@ -8,7 +8,7 @@ namespace PL_Course.Messaging.Impl.MSMQ
 {
     public class MsmqMessageQueue : MessageQueueBase
     {
-        private bool useTemporaryQueue;
+
         private msmq.MessageQueue queue;
         private bool createQueueIfNotExists = true;
         private string multicastAddress = "234.1.1.2:8001";
@@ -16,7 +16,6 @@ namespace PL_Course.Messaging.Impl.MSMQ
         public override void Dispose()
         {
             queue.Close();
-            if (useTemporaryQueue) msmq.MessageQueue.Delete(queue.Path);
         }
 
         public override void InitilizeOutbound(string name, MessagePattern messagePattern, Dictionary<string, object> properties = null)
@@ -28,19 +27,7 @@ namespace PL_Course.Messaging.Impl.MSMQ
         public override void InitilizeInbound(string name, MessagePattern messagePattern, Dictionary<string, object> properties = null)
         {
             Initilize(Direction.Inbound, name, messagePattern, properties);
-
-            switch (messagePattern)
-            {
-                case MessagePattern.PublishSubscribe:
-                    queue = GetInboundQueue();
-                    break;
-                case MessagePattern.RequestResponse:
-                    queue = useTemporaryQueue ? msmq.MessageQueue.Create(Address) : GetInboundQueue();
-                    break;
-                default:
-                    queue = GetInboundQueue();
-                    break;
-            }
+            queue = GetInboundQueue();
         }
 
         private msmq.MessageQueue GetInboundQueue()
@@ -103,25 +90,32 @@ namespace PL_Course.Messaging.Impl.MSMQ
 
         public override IMessageQueue GetResponseQueue()
         {
-            throw new NotImplementedException();
+            if (!(Pattern == MessagePattern.RequestResponse && Direction == Direction.Outbound))
+            {
+                throw new InvalidOperationException("Cannot get a reply queue except for outbound request/response queue");
+            }
+            var responseQueueName = string.Format("response.tmp.{0}", Guid.NewGuid().ToString().Substring(0, 6));
+            var responseQueue = MessageQueueFactory.CreateInbound(responseQueueName, MessagePattern.RequestResponse);
+            return responseQueue;
         }
 
-        public override IMessageQueue GetReplyQueue()
+        public override IMessageQueue GetReplyQueue(Message message)
         {
-            throw new NotImplementedException();
+            if (!(Pattern == MessagePattern.RequestResponse && Direction == Direction.Inbound))
+            {
+                throw new InvalidOperationException("Cannot get a reply queue except for inbound request/response queue");
+            }
+            var responseQueue = MessageQueueFactory.CreateOutbound(message.ResponseAddress, MessagePattern.RequestResponse);
+            return responseQueue;
         }
 
         protected override string GetAddress(string name)
         {
-            if (Pattern == MessagePattern.RequestResponse && Direction == Direction.Inbound)
-            {
-                useTemporaryQueue = true;
-                return string.Format(".\\private$\\response.tmp.{0}", Guid.NewGuid().ToString().Substring(0, 6));
-            }
             if (Pattern == MessagePattern.PublishSubscribe && Direction == Direction.Outbound)
             {
                 return string.Format("FormatName:MULTICAST={0}", multicastAddress);
             }
+            if (name.StartsWith(".\\private$\\")) return name;
             return string.Format(".\\private$\\messagequeue.{0}", name);
         }
     }

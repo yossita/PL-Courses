@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Reflection;
-using PL_Course.Infrastructure;
 using PL_Course.Integration.Workflows;
 using PL_Course.Messages.Commands;
 using PL_Course.Messages.Queries;
 using PL_Course.Messaging;
 using PL_Course.Messaging.Spec;
-using Message = System.Messaging.Message;
 
 namespace PL_Course.Handler
 {
@@ -40,21 +38,26 @@ namespace PL_Course.Handler
                 }
                 else if (m.BodyType == typeof(DoesUserExistRequest))
                 {
-                    CheckDoesUserExist(m.BodyAs<DoesUserExistRequest>(), queue);
+                    CheckDoesUserExist(m, queue);
+                }
+                else
+                {
+                    Console.WriteLine("Received message with message type '{0} which doesn't have a handler", m.BodyType);
                 }
             });
         }
 
-        private static void CheckDoesUserExist(DoesUserExistRequest doesUserExistRequest, IMessageQueue queue)
+        private static void CheckDoesUserExist(Message doesUserExistRequestMessage, IMessageQueue queue)
         {
+            var doesUserExistRequest = doesUserExistRequestMessage.BodyAs<DoesUserExistRequest>();
             Console.WriteLine("Starting DoesUserExist for: {0}, at {1}", doesUserExistRequest.Email, DateTime.Now);
             var doesUserExistResponse = new DoesUserExistResponse()
             {
                 Exists = new DoesUserExistWorkflow().DoesUserExists(doesUserExistRequest.Email)
             };
 
-            var responseQueue = queue.GetReplyQueue();
-            responseQueue.Send(new Messaging.Spec.Message() { Body = doesUserExistResponse });
+            var responseQueue = queue.GetReplyQueue(doesUserExistRequestMessage);
+            responseQueue.Send(new Message() { Body = doesUserExistResponse });
             Console.WriteLine("Returned {0} for DoesUserExist for: {1}, at {2}", doesUserExistResponse.Exists, doesUserExistRequest.Email, DateTime.Now);
         }
 

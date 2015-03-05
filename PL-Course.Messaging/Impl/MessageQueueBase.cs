@@ -15,7 +15,7 @@ namespace PL_Course.Messaging.Impl
         public abstract void Listen(Action<Message> onMessageReceived);
         public abstract void Receive(Action<Message> onMessageReceived);
         public abstract IMessageQueue GetResponseQueue();
-        public abstract IMessageQueue GetReplyQueue();
+        public abstract IMessageQueue GetReplyQueue(Message message);
 
         protected Direction Direction;
         protected MessagePattern Pattern;

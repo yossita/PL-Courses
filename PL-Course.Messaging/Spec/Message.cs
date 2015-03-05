@@ -32,7 +32,9 @@ namespace PL_Course.Messaging.Spec
 
         public static Message FromJson(Stream stream)
         {
-            return stream.ReadFromJsonStream<Message>();
+            var message = stream.ReadFromJsonStream<Message>();
+            message.body = message.body.ToJsonStream().ReadFromJsonStream(message.MessageType);
+            return message;
         }
     }
 }
